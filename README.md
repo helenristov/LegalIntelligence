@@ -1,4 +1,4 @@
-# Legal Clause Intelligence v3 for GitHub Pages and Vercel
+# Legal Clause Intelligence Demo for GitHub Pages
 
 This version upgrades the browser demo with stronger search and better clause visibility.
 

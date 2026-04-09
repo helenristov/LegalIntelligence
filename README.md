@@ -77,22 +77,6 @@ Then open:
 http://localhost:8000
 ```
 
-## Deploy live on GitHub Pages
-
-GitHub Pages is a static site hosting service that serves HTML, CSS, and JavaScript files from a repository. GitHub says you can publish from a branch or use GitHub Actions, and for static sites without a Jekyll build you can place an empty `.nojekyll` file in the publishing source. citeturn237522search8turn237522search0turn237522search2
-
-To deploy this package:
-1. Create a new GitHub repository.
-2. Upload all files from this package to the repository root.
-3. Commit and push.
-4. In GitHub, open **Settings > Pages**.
-5. Under **Build and deployment**, choose **Deploy from a branch**.
-6. Select your main branch and the root folder.
-7. Save.
-
-GitHub’s quickstart documents the same Pages flow through **Settings > Pages** and **Deploy from a branch**. citeturn237522search4
-
-
 ## Best demo flow
 
 1. Start with the sample contracts.

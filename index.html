@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legal Clause Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">LC</div>
+        <div>
+          <h1>Legal Clause Intelligence</h1>
+          <p>GitHub Pages demo with browser-based embeddings, hybrid search, and clause review</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Corpus</h2>
+        <label class="label">Source</label>
+        <select id="corpusMode" class="input">
+          <option value="sample">Sample contracts</option>
+          <option value="upload">Upload your own</option>
+        </select>
+
+        <div id="uploadWrap" class="hidden">
+          <label class="label">Upload TXT, MD, PDF, or DOCX</label>
+          <input id="fileInput" class="input" type="file" accept=".txt,.md,.pdf,.docx" multiple />
+          <p class="tiny">PDF and DOCX are parsed client-side in the browser. No server required.</p>
+        </div>
+
+        <label class="label">Contract</label>
+        <select id="contractSelect" class="input"></select>
+      </div>
+
+      <div class="panel">
+        <h2>Search</h2>
+        <label class="label">Ask about a clause</label>
+        <input id="searchInput" class="input" type="text" placeholder="Try: liability cap for confidentiality breach" />
+        <button id="searchBtn" class="button primary">Run hybrid search</button>
+        <button id="reindexBtn" class="button subtle">Rebuild index</button>
+        <p class="tiny">Dense retrieval uses browser embeddings through Transformers.js. Sparse scoring uses keyword BM25-style ranking.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Model status</h2>
+        <div id="status" class="status">Loading browser embedding model...</div>
+        <div class="stat-grid">
+          <div class="stat"><span>Contracts</span><strong id="contractsStat">0</strong></div>
+          <div class="stat"><span>Chunks</span><strong id="chunksStat">0</strong></div>
+          <div class="stat"><span>Embeddings</span><strong id="embedStat">Pending</strong></div>
+          <div class="stat"><span>Search</span><strong>Hybrid</strong></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Export</h2>
+        <button id="exportBtn" class="button subtle">Export current analysis JSON</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Portfolio-ready legal AI demo</p>
+          <h2>Read contracts, parse clauses, retrieve relevant language, and generate reviewer-oriented summaries.</h2>
+          <p class="hero-copy">
+            This version is designed for GitHub Pages. It runs entirely in the browser with no backend, using client-side parsing,
+            structure-aware chunking, browser embeddings, and lightweight legal review logic.
+          </p>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="card-head">
+            <h3>Contract viewer</h3>
+          </div>
+          <div class="card-body">
+            <textarea id="contractViewer" class="viewer" readonly></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Clause review</h3>
+          </div>
+          <div class="card-body">
+            <label class="label">Parsed clause chunk</label>
+            <select id="chunkSelect" class="input"></select>
+
+            <div class="review-block">
+              <div class="meta-row"><span>Clause title</span><strong id="clauseTitle">-</strong></div>
+              <div class="meta-row"><span>Estimated tokens</span><strong id="clauseTokens">-</strong></div>
+              <div class="meta-row"><span>Detected type</span><strong id="clauseTypes">-</strong></div>
+              <div class="meta-row"><span>Risk level</span><strong id="riskLevel" class="pill">-</strong></div>
+            </div>
+
+            <div class="subsection">
+              <h4>Clause text</h4>
+              <pre id="clauseText" class="codeblock"></pre>
+            </div>
+
+            <div class="subsection">
+              <h4>Summary</h4>
+              <p id="clauseSummary"></p>
+            </div>
+
+            <div class="subsection">
+              <h4>Why it matters</h4>
+              <ul id="whyMatters" class="clean-list"></ul>
+            </div>
+
+            <div class="subsection">
+              <h4>Review suggestions</h4>
+              <ul id="reviewSuggestions" class="clean-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card full">
+        <div class="card-head">
+          <h3>Clause inventory</h3>
+        </div>
+        <div class="card-body">
+          <div id="inventoryTableWrap"></div>
+        </div>
+      </section>
+
+      <section class="card full">
+        <div class="card-head">
+          <h3>Hybrid RAG results</h3>
+        </div>
+        <div class="card-body">
+          <div id="results" class="results-empty">Run a query to search across indexed clause chunks.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+  <script type="module" src="./sample_contracts.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

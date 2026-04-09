@@ -16,7 +16,7 @@
         <div class="brand-mark">LC</div>
         <div>
           <h1>Legal Clause Intelligence</h1>
-          <p>GitHub Pages demo with browser-based embeddings, hybrid search, and clause review</p>
+          <p>Advanced browser RAG demo for legal clauses with hybrid retrieval, clause taxonomy, and upload parsing</p>
         </div>
       </div>
 
@@ -31,7 +31,8 @@
         <div id="uploadWrap" class="hidden">
           <label class="label">Upload TXT, MD, PDF, or DOCX</label>
           <input id="fileInput" class="input" type="file" accept=".txt,.md,.pdf,.docx" multiple />
-          <p class="tiny">PDF and DOCX are parsed client-side in the browser. No server required.</p>
+          <p class="tiny">Client-side parsing only. No backend required.</p>
+          <div id="uploadStatus" class="upload-status">No uploaded files yet.</div>
         </div>
 
         <label class="label">Contract</label>
@@ -41,20 +42,26 @@
       <div class="panel">
         <h2>Search</h2>
         <label class="label">Ask about a clause</label>
-        <input id="searchInput" class="input" type="text" placeholder="Try: liability cap for confidentiality breach" />
-        <button id="searchBtn" class="button primary">Run hybrid search</button>
+        <input id="searchInput" class="input" type="text" placeholder="Try: liability cap for data breach or subprocessor obligations" />
+        <button id="searchBtn" class="button primary">Run advanced search</button>
         <button id="reindexBtn" class="button subtle">Rebuild index</button>
-        <p class="tiny">Dense retrieval uses browser embeddings through Transformers.js. Sparse scoring uses keyword BM25-style ranking.</p>
+        <p class="tiny">Search uses query expansion, title boost, BM25-style sparse ranking, cosine similarity over embeddings, reciprocal rank fusion, and MMR reranking.</p>
       </div>
 
       <div class="panel">
-        <h2>Model status</h2>
+        <h2>Clause taxonomy</h2>
+        <p class="tiny">Filter results by detected clause type.</p>
+        <div id="clauseFacetWrap" class="facet-wrap"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Model and index status</h2>
         <div id="status" class="status">Loading browser embedding model...</div>
         <div class="stat-grid">
           <div class="stat"><span>Contracts</span><strong id="contractsStat">0</strong></div>
           <div class="stat"><span>Chunks</span><strong id="chunksStat">0</strong></div>
           <div class="stat"><span>Embeddings</span><strong id="embedStat">Pending</strong></div>
-          <div class="stat"><span>Search</span><strong>Hybrid</strong></div>
+          <div class="stat"><span>Vector similarity</span><strong>Cosine</strong></div>
         </div>
       </div>
 
@@ -68,11 +75,25 @@
       <section class="hero">
         <div>
           <p class="eyebrow">Portfolio-ready legal AI demo</p>
-          <h2>Read contracts, parse clauses, retrieve relevant language, and generate reviewer-oriented summaries.</h2>
+          <h2>Parse contract language, search semantically, inspect clause types, and present reviewer-oriented outputs.</h2>
           <p class="hero-copy">
-            This version is designed for GitHub Pages. It runs entirely in the browser with no backend, using client-side parsing,
-            structure-aware chunking, browser embeddings, and lightweight legal review logic.
+            This version is designed for GitHub Pages or Vercel static hosting. It runs entirely in the browser with structure-aware chunking,
+            vector embeddings, advanced hybrid retrieval, and visual clause taxonomy filters.
           </p>
+        </div>
+      </section>
+
+      <section class="card full">
+        <div class="card-head">
+          <h3>Search architecture</h3>
+        </div>
+        <div class="card-body architecture-grid">
+          <div class="arch-item"><strong>Chunking</strong><span>Heading-aware segmentation with overlap and title metadata</span></div>
+          <div class="arch-item"><strong>Dense retrieval</strong><span>Browser embeddings using Transformers.js and cosine similarity</span></div>
+          <div class="arch-item"><strong>Sparse retrieval</strong><span>BM25-style lexical ranking for exact legal wording</span></div>
+          <div class="arch-item"><strong>Fusion</strong><span>Reciprocal rank fusion plus title weighting and type-aware boosts</span></div>
+          <div class="arch-item"><strong>Reranking</strong><span>MMR diversification to reduce near-duplicate results</span></div>
+          <div class="arch-item"><strong>Explainability</strong><span>Clause types, risk signals, summaries, and JSON export</span></div>
         </div>
       </section>
 
@@ -144,7 +165,6 @@
     </main>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
   <script type="module" src="./sample_contracts.js"></script>
   <script type="module" src="./app.js"></script>

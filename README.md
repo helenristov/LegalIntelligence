@@ -1,46 +1,71 @@
-# Legal Clause Intelligence v2 for GitHub Pages
+# Legal Clause Intelligence v3 for GitHub Pages and Vercel
 
-This is a browser-native legal AI demo designed to be hosted on GitHub Pages.
+This version upgrades the browser demo with stronger search and better clause visibility.
 
-## What makes this version different
+## What changed
 
-This version does not require a Python backend. It runs entirely in the browser and still demonstrates:
-- client-side contract parsing
-- structure-aware clause chunking
-- browser-based vector embeddings
-- hybrid retrieval with dense plus sparse search
-- lightweight clause review and summarization
-- uploads for TXT, MD, PDF, and DOCX
+The app now includes:
 
-## How the AI portion works
+- **advanced hybrid retrieval**
+  - browser embeddings with cosine similarity
+  - BM25-style sparse lexical ranking
+  - reciprocal rank fusion
+  - title-aware boosts
+  - clause-type-aware boosts
+  - query expansion using legal synonyms
+  - MMR reranking to reduce duplicate or overly similar results
 
-The app uses `Transformers.js` in the browser with the `Xenova/all-MiniLM-L6-v2` embedding model.
-That means visitors can see semantic retrieval working on GitHub Pages without exposing an API key.
+- **better clause taxonomy**
+  - clause type chips in the clause review panel
+  - clause type chips in search results
+  - a left-side facet panel showing the indexed clause types and counts
+  - clause-type filtering for search results
 
-The first load may take a little longer because the embedding model is downloaded into the browser.
+- **better upload behavior**
+  - clearer upload status messages
+  - explicit parsing feedback by file
+  - TXT, MD, PDF, and DOCX parsing on the client side
+
+- **live-demo-friendly packaging**
+  - static hosting ready
+  - includes `.nojekyll` for GitHub Pages
+  - works on GitHub Pages or Vercel
+
+## Important technical note on FAISS
+
+FAISS is an excellent production-grade vector indexing library, but it is primarily a server-side tool. A static GitHub Pages site cannot run `faiss-python` directly in the browser.
+
+This demo therefore uses a **FAISS-like retrieval pattern** for a browser-native environment:
+- local embedding generation
+- in-memory vector storage
+- cosine similarity ranking
+- hybrid fusion with lexical retrieval
+- reranking for diversity
+
+That makes the public demo portable while still reflecting the architecture you would use in production.
+
+### Production upgrade path
+
+For a production or interview follow-up version, the architecture should be:
+
+- frontend: static site or React app
+- backend: Python or Node service
+- vector index: **FAISS** or another ANN index
+- retrieval: hybrid sparse plus dense search
+- reranking: cross-encoder or MMR
+- LLM layer: Azure OpenAI or OpenAI for grounded clause analysis
 
 ## Files
 
-- `index.html` : the main app shell
+- `index.html` : main app shell
 - `styles.css` : styling
-- `app.js` : client-side parsing, chunking, embeddings, and retrieval
+- `app.js` : parsing, chunking, embeddings, retrieval, reranking
 - `sample_contracts.js` : built-in sample contracts
-
-## Deploy to GitHub Pages
-
-1. Create a GitHub repo.
-2. Upload all files from this package into the repo root.
-3. Commit and push.
-4. In GitHub, open **Settings > Pages**.
-5. Under **Build and deployment**, choose **Deploy from a branch**.
-6. Select the main branch and the root folder.
-7. Save.
-
-After GitHub publishes the site, your demo will be live.
+- `.nojekyll` : prevents GitHub Pages from applying the Jekyll pipeline
 
 ## Local test
 
-You can test with a simple static server.
+Use any static server.
 
 ### Python
 ```bash
@@ -52,26 +77,36 @@ Then open:
 http://localhost:8000
 ```
 
-### VS Code Live Server
-You can also right click `index.html` and open with Live Server.
+## Deploy live on GitHub Pages
+
+GitHub Pages is a static site hosting service that serves HTML, CSS, and JavaScript files from a repository. GitHub says you can publish from a branch or use GitHub Actions, and for static sites without a Jekyll build you can place an empty `.nojekyll` file in the publishing source. citeturn237522search8turn237522search0turn237522search2
+
+To deploy this package:
+1. Create a new GitHub repository.
+2. Upload all files from this package to the repository root.
+3. Commit and push.
+4. In GitHub, open **Settings > Pages**.
+5. Under **Build and deployment**, choose **Deploy from a branch**.
+6. Select your main branch and the root folder.
+7. Save.
+
+GitHub’s quickstart documents the same Pages flow through **Settings > Pages** and **Deploy from a branch**. citeturn237522search4
+
 
 ## Best demo flow
 
 1. Start with the sample contracts.
 2. Search for:
    - `limitation of liability`
-   - `data breach notification`
+   - `confidential information`
+   - `subprocessor obligations`
    - `termination for convenience`
    - `non-compete`
-3. Show the clause inventory and the clause review panel.
-4. Upload a PDF or DOCX contract and re-run search live.
+3. Click different clause-type facets like `liability`, `privacy`, or `termination`.
+4. Show that the search results and clause inventory reflect those categories.
+5. Switch to **Upload your own** and load a text-based PDF or DOCX.
+6. Re-run search and export the JSON result.
 
-## Important note
+## Resume-friendly description
 
-This is a strong GitHub Pages demo, but it is still a static site. It does not perform privileged server-side LLM calls.
-
-If you want a production-style version next, the best upgrade is:
-- GitHub Pages frontend
-- serverless API for LLM summarization and redlining
-- optional Azure OpenAI or OpenAI backend
-- citations and clause-grounded answer generation
+Built a browser-native legal clause intelligence demo with structure-aware chunking, semantic embeddings, advanced hybrid retrieval, clause taxonomy filters, and reviewer-oriented clause analysis for contracts and legal documents.

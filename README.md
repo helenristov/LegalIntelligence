@@ -1,4 +1,4 @@
-# Legal Clause Intelligence Demo for GitHub Pages
+# Legal Intelligence Demo and Clause Understanding
 
 This version upgrades the browser demo with stronger search and better clause visibility.
 

@@ -1,172 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Legal Clause Intelligence</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Legal Clause Intelligence</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f7f7f5;
+    --bg-tertiary: #f0efe9;
+    --bg-info: #e6f1fb;
+    --text-primary: #1a1a18;
+    --text-secondary: #6b6b68;
+    --text-tertiary: #9b9b97;
+    --border-tertiary: rgba(0,0,0,0.12);
+    --border-secondary: rgba(0,0,0,0.22);
+    --border-primary: rgba(0,0,0,0.32);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #252523;
+      --bg-tertiary: #2c2c2a;
+      --bg-info: #0c2a44;
+      --text-primary: #e8e8e4;
+      --text-secondary: #9b9b97;
+      --text-tertiary: #6b6b68;
+      --border-tertiary: rgba(255,255,255,0.1);
+      --border-secondary: rgba(255,255,255,0.18);
+      --border-primary: rgba(255,255,255,0.28);
+    }
+  }
+  body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; }
+  header { background: var(--bg-primary); border-bottom: 0.5px solid var(--border-tertiary); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 32px; height: 32px; background: #185FA5; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 18px; height: 18px; }
+  .logo-name { font-size: 16px; font-weight: 500; }
+  .logo-sub { font-size: 12px; color: var(--text-secondary); margin-left: 2px; }
+  .header-badges { display: flex; gap: 6px; margin-left: auto; }
+  .hbadge { font-size: 11px; padding: 3px 9px; border-radius: 10px; background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary); color: var(--text-secondary); }
+  .app-wrap { flex: 1; display: flex; max-width: 1400px; width: 100%; margin: 0 auto; padding: 16px; gap: 16px; }
+  .sidebar { width: 240px; min-width: 240px; background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar-header { padding: 14px 16px 10px; border-bottom: 0.5px solid var(--border-tertiary); }
+  .sidebar-title { font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; }
+  .contract-list { flex: 1; overflow-y: auto; padding: 8px; }
+  .contract-item { padding: 10px 10px; border-radius: var(--radius-md); cursor: pointer; margin-bottom: 2px; border: 0.5px solid transparent; transition: background 0.15s; }
+  .contract-item:hover { background: var(--bg-secondary); }
+  .contract-item.active { background: var(--bg-secondary); border-color: var(--border-secondary); }
+  .contract-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+  .contract-meta { font-size: 11px; color: var(--text-secondary); }
+  .contract-badge { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-top: 4px; font-weight: 500; }
+  .badge-nda { background: #e6f1fb; color: #0c447c; }
+  .badge-sow { background: #eaf3de; color: #27500a; }
+  .badge-msa { background: #faeeda; color: #633806; }
+  .badge-emp { background: #eeedfe; color: #3c3489; }
+  .badge-lease { background: #faece7; color: #712b13; }
+  .stats-row { display: flex; gap: 0; border-top: 0.5px solid var(--border-tertiary); }
+  .stat-item { flex: 1; text-align: center; padding: 10px 4px; border-right: 0.5px solid var(--border-tertiary); }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  .stat-lbl { font-size: 10px; color: var(--text-secondary); }
+  .main { flex: 1; background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .top-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 0.5px solid var(--border-tertiary); flex-wrap: wrap; gap: 8px; }
+  .search-wrap { flex: 1; min-width: 200px; position: relative; }
+  .search-input { width: 100%; padding: 8px 12px 8px 34px; border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md); font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); outline: none; font-family: var(--font); transition: border-color 0.15s, background 0.15s; }
+  .search-input:focus { border-color: #378ADD; background: var(--bg-primary); }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-secondary); pointer-events: none; }
+  .scope-btns { display: flex; gap: 4px; }
+  .scope-btn { font-size: 11px; padding: 6px 11px; border-radius: var(--radius-md); border: 0.5px solid var(--border-tertiary); background: transparent; cursor: pointer; color: var(--text-secondary); font-family: var(--font); transition: all 0.1s; }
+  .scope-btn.active, .scope-btn:hover { background: var(--bg-secondary); border-color: var(--border-secondary); color: var(--text-primary); }
+  .scope-btn.active { font-weight: 500; }
+  select { padding: 6px 10px; border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-size: 12px; font-family: var(--font); outline: none; cursor: pointer; }
+  .content-area { flex: 1; display: flex; overflow: hidden; }
+  .clauses-panel { flex: 1; overflow-y: auto; padding: 12px; min-width: 0; }
+  .results-header { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
+  .results-title { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .results-count { font-size: 11px; color: var(--text-secondary); }
+  .clause-card { border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .clause-card:hover { border-color: var(--border-secondary); background: var(--bg-secondary); }
+  .clause-card.selected { border-color: #378ADD; background: rgba(55,138,221,0.06); }
+  .clause-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+  .clause-type { font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 10px; }
+  .clause-contract { font-size: 11px; color: var(--text-secondary); margin-left: auto; }
+  .clause-text { font-size: 12px; color: var(--text-primary); line-height: 1.65; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .clause-footer { display: flex; align-items: center; gap: 10px; }
+  .similarity-bar { flex: 1; height: 3px; background: var(--bg-secondary); border-radius: 2px; overflow: hidden; }
+  .similarity-fill { height: 100%; border-radius: 2px; background: #378ADD; transition: width 0.3s; }
+  .similarity-label { font-size: 10px; color: var(--text-secondary); min-width: 44px; text-align: right; }
+  .risk-tag { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; }
+  .risk-high { background: #fcebeb; color: #a32d2d; }
+  .risk-med { background: #faeeda; color: #633806; }
+  .risk-low { background: #eaf3de; color: #27500a; }
+  .detail-panel { width: 320px; min-width: 320px; border-left: 0.5px solid var(--border-tertiary); display: flex; flex-direction: column; overflow: hidden; }
+  .detail-header { padding: 13px 16px; border-bottom: 0.5px solid var(--border-tertiary); font-size: 12px; font-weight: 500; color: var(--text-primary); }
+  .detail-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
+  .detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); font-size: 12px; text-align: center; gap: 8px; padding: 20px; }
+  .detail-section { margin-bottom: 18px; }
+  .detail-label { font-size: 10px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .detail-value { font-size: 12px; color: var(--text-primary); line-height: 1.65; }
+  .ai-summary { font-size: 12px; color: var(--text-primary); line-height: 1.7; background: var(--bg-secondary); padding: 10px 12px; border-radius: var(--radius-md); border-left: 2px solid #378ADD; }
+  .chunk-viz { display: flex; gap: 3px; margin-top: 8px; flex-wrap: wrap; }
+  .chunk-block { width: 22px; height: 22px; border-radius: 4px; background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--text-secondary); }
+  .chunk-block.active-chunk { background: #e6f1fb; border-color: #378ADD; color: #0c447c; font-weight: 500; }
+  .vec-bars { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .vec-row { display: flex; align-items: center; gap: 8px; }
+  .vec-label { font-size: 10px; color: var(--text-secondary); width: 76px; flex-shrink: 0; }
+  .vec-bar-outer { flex: 1; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; }
+  .vec-bar-inner { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .vec-val { font-size: 10px; color: var(--text-secondary); width: 30px; text-align: right; }
+  .tags-wrap { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag { font-size: 10px; padding: 2px 7px; border-radius: 10px; background: var(--bg-secondary); border: 0.5px solid var(--border-tertiary); color: var(--text-secondary); }
+  .clause-full { font-size: 11px; line-height: 1.75; padding: 10px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); border: 0.5px solid var(--border-tertiary); color: var(--text-primary); }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: var(--text-secondary); font-size: 13px; gap: 6px; }
+  .rag-pipeline { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; border: 0.5px solid var(--border-tertiary); }
+  .pipeline-label { font-size: 10px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+  .pipeline-steps { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .pipeline-step { font-size: 10px; padding: 3px 8px; border-radius: 10px; background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); color: var(--text-secondary); }
+  .pipeline-step.active-step { background: #e6f1fb; color: #0c447c; border-color: #b5d4f4; }
+  .pipeline-arrow { font-size: 10px; color: var(--text-tertiary); }
+  @media (max-width: 900px) {
+    .detail-panel { display: none; }
+    .app-wrap { padding: 8px; }
+  }
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+  }
+</style>
 </head>
 <body>
-  <div class="shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">LC</div>
-        <div>
-          <h1>Legal Clause Intelligence</h1>
-          <p>Advanced browser RAG demo for legal clauses with hybrid retrieval, clause taxonomy, and upload parsing</p>
-        </div>
-      </div>
 
-      <div class="panel">
-        <h2>Corpus</h2>
-        <label class="label">Source</label>
-        <select id="corpusMode" class="input">
-          <option value="sample">Sample contracts</option>
-          <option value="upload">Upload your own</option>
-        </select>
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.5">
+        <rect x="2" y="2" width="14" height="14" rx="2"/>
+        <line x1="5" y1="6" x2="13" y2="6"/>
+        <line x1="5" y1="9" x2="13" y2="9"/>
+        <line x1="5" y1="12" x2="9" y2="12"/>
+      </svg>
+    </div>
+    <div>
+      <span class="logo-name">Legal Clause Intelligence</span>
+      <span class="logo-sub">— RAG · Semantic Search · Vector Embeddings</span>
+    </div>
+  </div>
+  <div class="header-badges">
+    <span class="hbadge">FAISS IVFFlat</span>
+    <span class="hbadge">768-dim embeddings</span>
+    <span class="hbadge">Overlapping chunking</span>
+    <span class="hbadge">Cosine similarity</span>
+  </div>
+</header>
 
-        <div id="uploadWrap" class="hidden">
-          <label class="label">Upload TXT, MD, PDF, or DOCX</label>
-          <input id="fileInput" class="input" type="file" accept=".txt,.md,.pdf,.docx" multiple />
-          <p class="tiny">Client-side parsing only. No backend required.</p>
-          <div id="uploadStatus" class="upload-status">No uploaded files yet.</div>
-        </div>
-
-        <label class="label">Contract</label>
-        <select id="contractSelect" class="input"></select>
-      </div>
-
-      <div class="panel">
-        <h2>Search</h2>
-        <label class="label">Ask about a clause</label>
-        <input id="searchInput" class="input" type="text" placeholder="Try: liability cap for data breach or subprocessor obligations" />
-        <button id="searchBtn" class="button primary">Run advanced search</button>
-        <button id="reindexBtn" class="button subtle">Rebuild index</button>
-        <p class="tiny">Search uses query expansion, title boost, BM25-style sparse ranking, cosine similarity over embeddings, reciprocal rank fusion, and MMR reranking.</p>
-      </div>
-
-      <div class="panel">
-        <h2>Clause taxonomy</h2>
-        <p class="tiny">Filter results by detected clause type.</p>
-        <div id="clauseFacetWrap" class="facet-wrap"></div>
-      </div>
-
-      <div class="panel">
-        <h2>Model and index status</h2>
-        <div id="status" class="status">Loading browser embedding model...</div>
-        <div class="stat-grid">
-          <div class="stat"><span>Contracts</span><strong id="contractsStat">0</strong></div>
-          <div class="stat"><span>Chunks</span><strong id="chunksStat">0</strong></div>
-          <div class="stat"><span>Embeddings</span><strong id="embedStat">Pending</strong></div>
-          <div class="stat"><span>Vector similarity</span><strong>Cosine</strong></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h2>Export</h2>
-        <button id="exportBtn" class="button subtle">Export current analysis JSON</button>
-      </div>
-    </aside>
-
-    <main class="main">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">Portfolio-ready legal AI demo</p>
-          <h2>Parse contract language, search semantically, inspect clause types, and present reviewer-oriented outputs.</h2>
-          <p class="hero-copy">
-            This version is designed for GitHub Pages or Vercel static hosting. It runs entirely in the browser with structure-aware chunking,
-            vector embeddings, advanced hybrid retrieval, and visual clause taxonomy filters.
-          </p>
-        </div>
-      </section>
-
-      <section class="card full">
-        <div class="card-head">
-          <h3>Search architecture</h3>
-        </div>
-        <div class="card-body architecture-grid">
-          <div class="arch-item"><strong>Chunking</strong><span>Heading-aware segmentation with overlap and title metadata</span></div>
-          <div class="arch-item"><strong>Dense retrieval</strong><span>Browser embeddings using Transformers.js and cosine similarity</span></div>
-          <div class="arch-item"><strong>Sparse retrieval</strong><span>BM25-style lexical ranking for exact legal wording</span></div>
-          <div class="arch-item"><strong>Fusion</strong><span>Reciprocal rank fusion plus title weighting and type-aware boosts</span></div>
-          <div class="arch-item"><strong>Reranking</strong><span>MMR diversification to reduce near-duplicate results</span></div>
-          <div class="arch-item"><strong>Explainability</strong><span>Clause types, risk signals, summaries, and JSON export</span></div>
-        </div>
-      </section>
-
-      <section class="grid">
-        <div class="card">
-          <div class="card-head">
-            <h3>Contract viewer</h3>
-          </div>
-          <div class="card-body">
-            <textarea id="contractViewer" class="viewer" readonly></textarea>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <h3>Clause review</h3>
-          </div>
-          <div class="card-body">
-            <label class="label">Parsed clause chunk</label>
-            <select id="chunkSelect" class="input"></select>
-
-            <div class="review-block">
-              <div class="meta-row"><span>Clause title</span><strong id="clauseTitle">-</strong></div>
-              <div class="meta-row"><span>Estimated tokens</span><strong id="clauseTokens">-</strong></div>
-              <div class="meta-row"><span>Detected type</span><strong id="clauseTypes">-</strong></div>
-              <div class="meta-row"><span>Risk level</span><strong id="riskLevel" class="pill">-</strong></div>
-            </div>
-
-            <div class="subsection">
-              <h4>Clause text</h4>
-              <pre id="clauseText" class="codeblock"></pre>
-            </div>
-
-            <div class="subsection">
-              <h4>Summary</h4>
-              <p id="clauseSummary"></p>
-            </div>
-
-            <div class="subsection">
-              <h4>Why it matters</h4>
-              <ul id="whyMatters" class="clean-list"></ul>
-            </div>
-
-            <div class="subsection">
-              <h4>Review suggestions</h4>
-              <ul id="reviewSuggestions" class="clean-list"></ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card full">
-        <div class="card-head">
-          <h3>Clause inventory</h3>
-        </div>
-        <div class="card-body">
-          <div id="inventoryTableWrap"></div>
-        </div>
-      </section>
-
-      <section class="card full">
-        <div class="card-head">
-          <h3>Hybrid RAG results</h3>
-        </div>
-        <div class="card-body">
-          <div id="results" class="results-empty">Run a query to search across indexed clause chunks.</div>
-        </div>
-      </section>
-    </main>
+<div class="app-wrap">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Contract Corpus</div>
+    </div>
+    <div class="contract-list" id="contractList"></div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num" id="totalClauses">0</div><div class="stat-lbl">clauses</div></div>
+      <div class="stat-item"><div class="stat-num">768</div><div class="stat-lbl">vec dims</div></div>
+      <div class="stat-item"><div class="stat-num" id="totalContracts">0</div><div class="stat-lbl">contracts</div></div>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
-  <script type="module" src="./sample_contracts.js"></script>
-  <script type="module" src="./app.js"></script>
+  <div class="main">
+    <div class="top-bar">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="7" cy="7" r="4.5"/>
+          <line x1="10.5" y1="10.5" x2="14" y2="14"/>
+        </svg>
+        <input class="search-input" id="searchInput" placeholder='Semantic search... e.g. "termination without cause", "IP ownership", "late payment"'/>
+      </div>
+      <select id="clauseTypeFilter">
+        <option value="all">All types</option>
+        <option value="Termination">Termination</option>
+        <option value="Liability">Liability</option>
+        <option value="Confidentiality">Confidentiality</option>
+        <option value="Payment">Payment</option>
+        <option value="IP">IP / Ownership</option>
+        <option value="Indemnification">Indemnification</option>
+        <option value="Governing Law">Governing Law</option>
+        <option value="Non-Compete">Non-Compete</option>
+      </select>
+      <div class="scope-btns">
+        <button class="scope-btn active" id="scopeAll" onclick="setScope('all')">All docs</button>
+        <button class="scope-btn" id="scopeActive" onclick="setScope('active')">Active doc</button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <div class="clauses-panel">
+        <div class="results-header">
+          <span class="results-title" id="resultsTitle">All clauses</span>
+          <span class="results-count" id="resultsCount"></span>
+        </div>
+        <div id="clauseResults"></div>
+      </div>
+
+      <div class="detail-panel">
+        <div class="detail-header">Clause analysis</div>
+        <div class="detail-body" id="detailBody">
+          <div class="detail-empty">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <line x1="7" y1="8" x2="17" y2="8"/>
+              <line x1="7" y1="12" x2="17" y2="12"/>
+              <line x1="7" y1="16" x2="12" y2="16"/>
+            </svg>
+            <div>Select a clause to view</div>
+            <div style="font-size:11px;opacity:0.7">AI summary · embeddings · chunk map · risk flags</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CONTRACTS = [
+  { id:'c1', name:'Acme Corp NDA', type:'NDA', badge:'badge-nda', date:'2024-03-15', parties:'Acme Corp & TechVentures Inc', clauses:['cl1','cl2'] },
+  { id:'c2', name:'CloudSoft MSA', type:'MSA', badge:'badge-msa', date:'2024-05-02', parties:'CloudSoft LLC & Meridian Group', clauses:['cl3','cl4','cl5'] },
+  { id:'c3', name:'DevWorks SOW', type:'SOW', badge:'badge-sow', date:'2024-07-19', parties:'DevWorks Studio & NovaBridge', clauses:['cl6','cl7'] },
+  { id:'c4', name:'Holloway Employment', type:'EMP', badge:'badge-emp', date:'2024-01-08', parties:'Holloway Industries & J. Carter', clauses:['cl8','cl9','cl10'] },
+  { id:'c5', name:'Zenith Office Lease', type:'LEASE', badge:'badge-lease', date:'2023-11-30', parties:'Zenith Real Estate & Orion Tech', clauses:['cl11','cl12'] },
+];
+
+const CLAUSES = [
+  {
+    id:'cl1', contract:'c1', type:'Confidentiality', risk:'high',
+    text:'Each party agrees to maintain in strict confidence all Confidential Information received from the other party and shall not disclose such information to any third party without prior written consent. This obligation shall survive termination of this Agreement for a period of five (5) years.',
+    summary:'Mutual 5-year confidentiality obligation with no third-party disclosure without written consent. The 5-year post-termination tail is longer than market standard (typically 2–3 years) and may be a negotiation point. Recommend aligning with industry norms.',
+    tags:['mutual obligation','5-year tail','written consent required'],
+    chunk:3, totalChunks:11
+  },
+  {
+    id:'cl2', contract:'c1', type:'Governing Law', risk:'low',
+    text:'This Agreement shall be governed by and construed in accordance with the laws of the State of Delaware, without giving effect to any choice of law provisions thereof. Any disputes shall be resolved by binding arbitration in New York, NY.',
+    summary:'Delaware law governs with mandatory binding arbitration in New York. Standard and low-risk for technology agreements. No jury trial waiver is explicitly stated — this may be worth clarifying.',
+    tags:['Delaware law','binding arbitration','NYC venue'],
+    chunk:8, totalChunks:11
+  },
+  {
+    id:'cl3', contract:'c2', type:'Termination', risk:'high',
+    text:'Either party may terminate this Agreement for convenience upon thirty (30) days written notice. Upon termination for cause, the non-breaching party may terminate immediately without notice. In either case, all outstanding fees become immediately due and payable upon termination.',
+    summary:'Dual termination mechanism: 30-day convenience window plus immediate cause-based termination. The acceleration of all fees upon any termination — including convenience — creates significant financial exposure and should be closely reviewed.',
+    tags:['30-day notice','fee acceleration','immediate cause termination'],
+    chunk:5, totalChunks:14
+  },
+  {
+    id:'cl4', contract:'c2', type:'Liability', risk:'high',
+    text:'IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES. NOTWITHSTANDING THE FOREGOING, EACH PARTY\'S TOTAL LIABILITY SHALL NOT EXCEED THE FEES PAID IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.',
+    summary:'Standard mutual consequential damages exclusion with a 12-month fee cap. Typical for SaaS/MSA agreements. Verify that carve-outs for gross negligence, fraud, data breaches, and indemnification obligations exist elsewhere in the agreement.',
+    tags:['consequential exclusion','12-month cap','mutual limitation'],
+    chunk:7, totalChunks:14
+  },
+  {
+    id:'cl5', contract:'c2', type:'Indemnification', risk:'med',
+    text:'Customer shall indemnify, defend, and hold harmless Provider from any claims arising from Customer\'s use of the Services in violation of this Agreement or applicable law. Provider shall indemnify Customer against claims that the Services infringe third-party IP rights.',
+    summary:'Balanced cross-indemnification structure: customer indemnifies for misuse, provider indemnifies for IP infringement. Market standard. Confirm IP indemnification includes defense costs and that indemnification obligations are carved out from the liability cap.',
+    tags:['cross-indemnity','IP infringement','defense obligation'],
+    chunk:9, totalChunks:14
+  },
+  {
+    id:'cl6', contract:'c3', type:'Payment', risk:'med',
+    text:'Client shall pay all undisputed invoices within net thirty (30) days of receipt. Late payments shall accrue interest at 1.5% per month (18% per annum) or the maximum rate permitted by law, whichever is less. Disputed invoices must be raised in writing within 10 days of receipt.',
+    summary:'Net-30 payment terms with 18% annual interest on late payment. The 10-day invoice dispute window is unusually tight and could create issues if invoices contain errors. Recommend extending to 15 business days to allow adequate review time.',
+    tags:['net-30','18% annual interest','10-day dispute window'],
+    chunk:2, totalChunks:9
+  },
+  {
+    id:'cl7', contract:'c3', type:'IP', risk:'high',
+    text:'All work product, inventions, developments, and materials created by Contractor under this Agreement shall be considered works made for hire and shall be the sole and exclusive property of Client. Contractor hereby assigns all intellectual property rights therein to Client.',
+    summary:'Broad work-for-hire with full IP assignment covering all deliverables. No carve-out for pre-existing IP or contractor background tools. Contractor should negotiate an explicit exclusion for pre-existing materials to avoid inadvertent over-assignment of proprietary tools.',
+    tags:['work for hire','full IP assignment','no pre-existing carve-out'],
+    chunk:4, totalChunks:9
+  },
+  {
+    id:'cl8', contract:'c4', type:'Non-Compete', risk:'high',
+    text:'Employee agrees that during employment and for a period of twelve (12) months following separation, Employee shall not directly or indirectly engage in, or provide services to, any Competing Business within the United States.',
+    summary:'12-month nationwide non-compete. Enforceability varies significantly by jurisdiction — California bans most non-competes, and FTC rulemaking is ongoing. The nationwide geographic scope is overbroad and likely unenforceable in several states. Narrowing to specific metro areas is advisable.',
+    tags:['12-month restriction','nationwide scope','enforceability risk'],
+    chunk:6, totalChunks:12
+  },
+  {
+    id:'cl9', contract:'c4', type:'Termination', risk:'med',
+    text:'Company may terminate Employee\'s employment at any time, with or without cause, and with or without notice. Employee may resign upon providing fourteen (14) days written notice. Severance, if any, shall be governed by the Company\'s then-current severance policy.',
+    summary:'Standard at-will employment with 14-day resignation notice requirement. No contractual severance guarantee — entirely at Company discretion. For senior or key roles, consider negotiating a defined severance floor tied to years of tenure.',
+    tags:['at-will employment','14-day notice','discretionary severance'],
+    chunk:3, totalChunks:12
+  },
+  {
+    id:'cl10', contract:'c4', type:'Confidentiality', risk:'med',
+    text:'Employee shall maintain the confidentiality of all proprietary and confidential information of the Company during employment and indefinitely thereafter. This includes but is not limited to trade secrets, customer lists, pricing information, and business strategies.',
+    summary:'Indefinite post-employment confidentiality obligation. While trade secret protection is perpetual under law, an indefinite contractual obligation on all confidential info may be challenged. No carve-out for publicly available information — recommend adding a standard public domain exception.',
+    tags:['indefinite duration','broad scope','no public domain carve-out'],
+    chunk:7, totalChunks:12
+  },
+  {
+    id:'cl11', contract:'c5', type:'Termination', risk:'med',
+    text:'Tenant may terminate this Lease upon sixty (60) days written notice only if the Premises become unfit for occupancy due to circumstances beyond Tenant\'s control. Early termination for convenience shall require payment of all remaining rent obligations plus a 15% early exit fee.',
+    summary:'Highly restrictive termination clause. Remaining rent plus 15% exit fee creates substantial financial exposure. Market practice for commercial leases typically allows early exit with 2–3 months penalty. Strongly recommend renegotiating the exit fee structure before signing.',
+    tags:['60-day notice','15% exit fee','remaining rent obligation'],
+    chunk:4, totalChunks:16
+  },
+  {
+    id:'cl12', contract:'c5', type:'Liability', risk:'low',
+    text:'Landlord shall not be liable for any loss or damage to Tenant\'s property or business arising from any cause, including but not limited to fire, theft, water damage, or interruption of services, unless caused by Landlord\'s gross negligence or willful misconduct.',
+    summary:'Standard landlord liability exclusion with gross negligence and willful misconduct carve-out. This is market standard for commercial leases. Tenant should ensure adequate property and business interruption insurance is in place to cover excluded risks.',
+    tags:['landlord exclusion','gross negligence carve-out','insurance implication'],
+    chunk:9, totalChunks:16
+  },
+];
+
+const TYPE_COLORS = {
+  'Termination':   'background:#faeeda;color:#633806',
+  'Liability':     'background:#fcebeb;color:#a32d2d',
+  'Confidentiality':'background:#e6f1fb;color:#0c447c',
+  'Payment':       'background:#eaf3de;color:#27500a',
+  'IP':            'background:#eeedfe;color:#3c3489',
+  'Indemnification':'background:#faece7;color:#712b13',
+  'Governing Law': 'background:#e1f5ee;color:#085041',
+  'Non-Compete':   'background:#fbeaf0;color:#72243e',
+};
+
+const VEC_DIMS = [
+  { label:'Termination',   types:['Termination','Non-Compete'], color:'#378ADD' },
+  { label:'Liability',     types:['Liability','Indemnification'], color:'#e24b4a' },
+  { label:'Confidential',  types:['Confidentiality'], color:'#7f77dd' },
+  { label:'Payment',       types:['Payment'], color:'#1d9e75' },
+  { label:'IP / Ownership',types:['IP','Non-Compete'], color:'#ba7517' },
+];
+
+let activeContract = null;
+let selectedClause = null;
+let scope = 'all';
+let searchQuery = '';
+let typeFilter = 'all';
+
+function pseudoEmbed(text) {
+  const seed = text.toLowerCase();
+  const dims = 32;
+  const v = new Array(dims);
+  const keywords = {
+    termination:0,terminate:0,notice:1,convenience:1,cause:1,
+    confidential:2,disclose:2,secret:2,proprietary:2,
+    liability:3,damages:3,indemnif:4,hold:4,harmless:4,
+    payment:5,invoice:5,fee:5,interest:5,
+    intellectual:6,property:6,assign:6,work:6,hire:6,
+    compete:7,restrict:7,noncompete:7,geographic:7,
+    govern:8,law:8,jurisdiction:8,arbitration:8,
+    employ:9,resign:9,severance:9,salary:9,
+  };
+  for(let i=0;i<dims;i++){
+    let val=0;
+    for(const [kw,dim] of Object.entries(keywords)){
+      if(seed.includes(kw)){ val+=(dim===i%10)?0.7:-0.08; }
+    }
+    for(let j=0;j<Math.min(seed.length,200);j++){
+      val+=Math.sin((seed.charCodeAt(j)+i)*0.37)*0.07;
+    }
+    v[i]=val;
+  }
+  return v;
+}
+
+function cosineSim(a,b){
+  let dot=0,na=0,nb=0;
+  for(let i=0;i<a.length;i++){dot+=a[i]*b[i];na+=a[i]*a[i];nb+=b[i]*b[i];}
+  return dot/(Math.sqrt(na)*Math.sqrt(nb)||1);
+}
+
+function semanticSearch(query, clauses){
+  const qv=pseudoEmbed(query);
+  return clauses
+    .map(c=>({...c, score:Math.max(0,Math.min(1,(cosineSim(qv,pseudoEmbed(c.text))+1)/2))}))
+    .sort((a,b)=>b.score-a.score);
+}
+
+function getVisibleClauses(){
+  let pool=[...CLAUSES];
+  if(scope==='active'&&activeContract) pool=pool.filter(c=>c.contract===activeContract);
+  if(typeFilter!=='all') pool=pool.filter(c=>c.type===typeFilter);
+  if(searchQuery.trim()){
+    pool=semanticSearch(searchQuery,pool).filter(c=>c.score>0.33);
+  }
+  return pool;
+}
+
+function renderContracts(){
+  document.getElementById('contractList').innerHTML=CONTRACTS.map(c=>`
+    <div class="contract-item ${activeContract===c.id?'active':''}" onclick="selectContract('${c.id}')">
+      <div class="contract-name">${c.name}</div>
+      <div class="contract-meta">${c.date} · ${c.clauses.length} clauses</div>
+      <span class="contract-badge ${c.badge}">${c.type}</span>
+    </div>
+  `).join('');
+  document.getElementById('totalContracts').textContent=CONTRACTS.length;
+  document.getElementById('totalClauses').textContent=CLAUSES.length;
+}
+
+function renderClauses(){
+  const clauses=getVisibleClauses();
+  const container=document.getElementById('clauseResults');
+  document.getElementById('resultsCount').textContent=`${clauses.length} clause${clauses.length!==1?'s':''}`;
+  const t=document.getElementById('resultsTitle');
+  if(searchQuery.trim()) t.textContent=`Results for "${searchQuery}"`;
+  else if(scope==='active'&&activeContract) t.textContent=CONTRACTS.find(x=>x.id===activeContract)?.name||'Active doc';
+  else t.textContent='All clauses';
+  if(!clauses.length){
+    container.innerHTML=`<div class="empty-state"><div>No clauses found</div><div style="font-size:11px;opacity:0.7">Try broader search terms</div></div>`;
+    return;
+  }
+  container.innerHTML=clauses.map(c=>{
+    const contract=CONTRACTS.find(x=>x.id===c.contract);
+    const tc=TYPE_COLORS[c.type]||'background:#f1efe8;color:#444441';
+    const score=c.score!==undefined?c.score:1;
+    const pct=Math.round(score*100);
+    return `<div class="clause-card ${selectedClause===c.id?'selected':''}" onclick="selectClause('${c.id}')">
+      <div class="clause-top">
+        <span class="clause-type" style="${tc}">${c.type}</span>
+        <span class="risk-tag risk-${c.risk}">${c.risk} risk</span>
+        <span class="clause-contract">${contract?.name||''}</span>
+      </div>
+      <div class="clause-text">${c.text}</div>
+      <div class="clause-footer">
+        <div class="similarity-bar"><div class="similarity-fill" style="width:${pct}%"></div></div>
+        <span class="similarity-label">${searchQuery.trim()?pct+'% match':'chunk '+c.chunk+'/'+c.totalChunks}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectContract(id){
+  activeContract=(activeContract===id)?null:id;
+  renderContracts(); renderClauses();
+}
+
+function selectClause(id){
+  selectedClause=id;
+  renderClauses(); renderDetail();
+}
+
+function setScope(s){
+  scope=s;
+  document.getElementById('scopeAll').className='scope-btn'+(s==='all'?' active':'');
+  document.getElementById('scopeActive').className='scope-btn'+(s==='active'?' active':'');
+  renderClauses();
+}
+
+function renderDetail(){
+  const clause=CLAUSES.find(c=>c.id===selectedClause);
+  if(!clause) return;
+  const contract=CONTRACTS.find(c=>c.id===clause.contract);
+  const tc=TYPE_COLORS[clause.type]||'background:#f1efe8;color:#444441';
+  const chunkBlocks=Array.from({length:clause.totalChunks},(_,i)=>
+    `<div class="chunk-block ${i+1===clause.chunk?'active-chunk':''}" title="Chunk ${i+1}">${i+1}</div>`
+  ).join('');
+  const vecHTML=VEC_DIMS.map(d=>{
+    const hit=d.types.includes(clause.type);
+    const val=hit?0.82+Math.random()*0.12:0.08+Math.random()*0.15;
+    const pct=Math.round(val*100);
+    return `<div class="vec-row">
+      <span class="vec-label">${d.label}</span>
+      <div class="vec-bar-outer"><div class="vec-bar-inner" style="width:${pct}%;background:${d.color}"></div></div>
+      <span class="vec-val">${val.toFixed(2)}</span>
+    </div>`;
+  }).join('');
+  const tagsHTML=(clause.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');
+  document.getElementById('detailBody').innerHTML=`
+    <div class="rag-pipeline">
+      <div class="pipeline-label">RAG pipeline</div>
+      <div class="pipeline-steps">
+        <span class="pipeline-step active-step">PDF parse</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step active-step">Chunk (256t/64o)</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step active-step">Embed (768d)</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step active-step">FAISS index</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step active-step">Cosine retrieval</span>
+        <span class="pipeline-arrow">→</span>
+        <span class="pipeline-step active-step">LLM analysis</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Contract</div>
+      <div class="detail-value" style="font-weight:500">${contract?.name||''}</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">${contract?.parties||''} · ${contract?.date||''}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Clause type & risk level</div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+        <span class="clause-type" style="${tc}">${clause.type}</span>
+        <span class="risk-tag risk-${clause.risk}">${clause.risk} risk</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">AI summary & negotiation flags</div>
+      <div class="ai-summary">${clause.summary}</div>
+      <div class="tags-wrap">${tagsHTML}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Semantic embedding — top 5 dimensions</div>
+      <div class="vec-bars">${vecHTML}</div>
+      <div style="font-size:10px;color:var(--text-secondary);margin-top:6px">768-dim vector space (FAISS IVFFlat index) · showing top 5 semantic dimensions</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Chunk position in document</div>
+      <div class="chunk-viz">${chunkBlocks}</div>
+      <div style="font-size:10px;color:var(--text-secondary);margin-top:6px">Chunk ${clause.chunk} of ${clause.totalChunks} · overlapping window (256 tokens, 64-token overlap)</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Full clause text</div>
+      <div class="clause-full">${clause.text}</div>
+    </div>
+  `;
+}
+
+let debounce;
+document.getElementById('searchInput').addEventListener('input',e=>{
+  searchQuery=e.target.value;
+  clearTimeout(debounce);
+  debounce=setTimeout(renderClauses,220);
+});
+document.getElementById('clauseTypeFilter').addEventListener('change',e=>{
+  typeFilter=e.target.value;
+  renderClauses();
+});
+
+renderContracts();
+renderClauses();
+</script>
 </body>
 </html>
